@@ -24,6 +24,86 @@ void PrintRoomOutboundConnections(struct room* input)
   return;
 }
 
+// Returns true if all rooms have 3 to 6 outbound connections, false otherwise
+bool IsGraphFull(room* rooms)  
+{
+    int i;
+    for (i = 0; i < 7; i++)
+    {
+        if (rooms[i]->numOutboundConnections < 3)
+            return false;
+    }
+    return true;
+}
+
+// Adds a random, valid outbound connection from a room to another room
+void AddRandomConnection(room* rooms)
+{
+    room A;  // Maybe a struct, maybe global arrays of ints
+    room B;
+
+    while(true)
+    {
+        A = GetRandomRoom(rooms);
+
+        if (CanAddConnectionFrom(A) == true)
+            break;
+    }
+
+    do
+    {
+        B = GetRandomRoom(rooms);
+    }
+    while(CanAddConnectionFrom(B) == false || IsSameRoom(A, B) == true || ConnectionAlreadyExists(A, B) == true);
+
+    ConnectRoom(A, B);  // TODO: Add this connection to the real variables,
+    ConnectRoom(B, A);  //  because this A and B will be destroyed when this function terminates
+}
+
+// Returns a random room, does NOT validate if connection can be added
+Room GetRandomRoom(room* rooms)
+{
+    return rooms[rand() % 7];
+}
+
+// Returns true if a connection can be added from room x (< 6 outbound connections), false otherwise
+bool CanAddConnectionFrom(room x) 
+{
+    return (x->numOutboundConnections < 6);
+}
+
+// Returns true if a connection from room x to room y already exists, false otherwise
+bool ConnectionAlreadyExists(room x, room y)
+{
+    int i;
+    for (i = 0; i < x->numOutboundConnections; i++)
+    {
+        if (x->outboundConnections[i]->id == y->id)
+            return true;
+    }
+    return false;
+}
+
+// Connects rooms x and y together, does not check if this connection is valid
+void ConnectRoom(room x, room y) 
+{
+    int openDoorIndex;
+    
+    openDoorIndex = x->numOutboundConnections;
+    x->outboundConnections[openDoorIndex] = y;
+    x->numOutboundConnections++;
+    
+    openDoorIndex = y->numOutboundConnections;
+    y->outboundConnections[openDoorIndex] = x;
+    y->numOutboundConnections++;
+}
+
+// Returns true if rooms x and y are the same room, false otherwise
+bool IsSameRoom(room x, room y) 
+{
+    return (x->id == y->id);
+}
+
 int main(int argc, char* argv[])
 {
 	//for random numbers
@@ -97,5 +177,12 @@ int main(int argc, char* argv[])
 	{
 		printf("This room's name and id are: (%s/%d)\n", rooms[j].name, rooms[j].id);
 		printf("This room's type is: %s\n", rTypes[rooms[j].roomType]);
+	}
+
+
+	// Create all connections in graph
+	while (IsGraphFull(rooms) == false)
+	{
+	    AddRandomConnection(rooms);
 	}
 }
