@@ -3,6 +3,8 @@
 #include <string.h>
 #include <time.h>
 
+typedef enum { false, true } bool;
+
 struct room
 {
 	int id;
