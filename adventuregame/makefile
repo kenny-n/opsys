@@ -1,11 +1,14 @@
 default: prog2
 
-prog2.o: ngoken.buildrooms.c
-	gcc -std=c89 -c ngoken.buildrooms.c -o prog2.o
+buildrooms.o: ngoken.buildrooms.c
+	gcc -std=c89 -c ngoken.buildrooms.c -o buildrooms.o
 
-prog2: prog2.o
-	gcc prog2.o -o prog2	
+adventure.o: ngoken.adventure.c
+	gcc -std=c89 -c ngoken.adventure.c -o adventure.o -lpthread
+
+prog2: buildrooms.o adventure.o
+ 	gcc buildrooms.o adventure.o -o prog2	
 
 clean:
-	rm prog2.o
+	rm *.o
 	rm prog2
